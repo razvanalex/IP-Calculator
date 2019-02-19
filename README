@@ -1,0 +1,141 @@
+------------------------------------------------------------------------------
+			TEMA 1 - PROGRAMAREA CALCULATOARELOR
+------------------------------------------------------------------------------
+
+AUTOR
+  Smadu Razvan-Alexandru CB315
+  
+FISIERE INCLUSE
+  -Fisiere sursa: tema_ip.c
+  -makefile
+  -README
+
+README
+ Citirea, interpretarea si afisarea datelor introduse
+   Informatiile din input sunt stocate in variabilele scrise doar cu majuscule
+   din cadrul functiei main(), exceptie facand NET_ADDR_1, NET_ADDR_2 si
+   NUM_NET_ADDR. IP-urile si masca scrisa desfasurat (Ex. 255.255.255.0) 
+   sunt retinute in vectori de 4 elemente (valoarea 4 a fost retinuta in
+   constanta 'groups'). Fiecare element al vectorului reprezinta o grupare de 
+   8 biti din IP (Ex. daca IP-ul este 192.168.1.1 atunci vectorul asociat
+   IP-ului va fi IP = { 192, 168, 1, 1 }). Masca, scrisa in forma /masca,
+   este reprezentata printr-o variabila de tip intreg. Citirea seturilor
+   se face in ordinea introducerii, linie cu linie, iar output-ul va fi afisat
+   dupa fiecare citire care este precedata de tasta ENTER. Prin redirectare sau
+   introducerea tuturor seturilor (fara ENTER intre ele), ouput-ul generat va
+   fi afisat imediat dupa linia precedata de tasta ENTER. Seturile sunt citite 
+   si prelucrate intr-o structura repetitiva cu numar cunoscut de pasi, acesta 
+   din urma fiind numarul de seturi de date care vor fi introduse. Citirea se 
+   face astfel: pentru primele 5 task-uri sunt citite IP_1, MASK si IP_2, iar 
+   pentru task-ul 6 sunt citite si celelalte valori in cazul in care raspunsul
+   de la task-ul 4 este "da", altfel se vor citi, insa fara a fi folosite, 
+   celelalte valori (pentru a putea citi in continuare setul care urmeaza). 
+   Pentru task-urile 7 si 8, variabilele sunt cele memorate la inceputul 
+   programului.
+   
+   Prezentarea implementarii codului, pentru fiecare task
+     Task 0
+       Datorita implementarii prin vectori al IP-ului (la fel de corect era si
+       daca erau folosite 4 variabile, insa e mai greu de lucrat cu ele),
+       afisarea acestuia se rezuma defapt la afisarea elemetelor unui vector 
+       cu 4 elemente.
+     
+     Task 1
+       La acest task este folosita functia Generate_Mask(int, (*int)[]) care
+       primeste ca argument valoarea mastii si intoarce prin variabila de tip
+       pointer masca obtinuta in forma desfasurata (Pointerul, aici, are doar
+       rolul de a putea modifica variabila din argumentul functiei, 
+       prin scrierea pe adresa variabilei respective). Masca rezultata in urma
+       functiei este apoi afisata precum IP-ul de la task-ul anterior. 
+       
+       Masca este prelucrata astfel: pentru fiecare grup se verifica daca 
+       exista grupuri de opt 1-uri (11111111). In caz afirmativ, valoarea 
+       pe acel grup este 255 si se scade 8 din masca. Acest lucru se repeta 
+       pana cand masca va ajunge la o valoare mai mica de 8. Daca masca ajunge
+       la 0, restul se completeaza cu 0, alftel se face suma 2^7 + 2^6 + ... 
+       + 2^n (altfel spus, din 256 se scade suma primelor n puteri ale lui 
+       2 care este 2^(8 - n)), unde n este numarul de 1-uri ramase in masca
+       (valoarea mastii in acest caz este cuprinsa intre 1 si 7). 
+ 
+     Task 2
+       La Task-ul 2 se calculeaza adresa de retea, prin functia 
+       Compute_Network_Address(int[], int, (*int)[]) ce primeste o adresa IP
+       oarecare si masca. Modul de generare a adresei de retea este realizata 
+       in mod similar ca in task-ul 1, la generarea mastii desfasurate, 
+       diferenta fiind data de faptul ca IP-ul rezultat (NET_ADDR) este 
+       initializat cu 0.0.0.0 si pe baza mastii, se face SI pe biti cu IP-ul 
+       introdus. Rezultatul este salvat in NET_ADDR si apoi afisat ca orice 
+       IP din acest program.
+     
+     Task 3
+       Aici exista o singura functie care afiseaza doar adresa Broadcast, 
+       pe motiv ca nu va mai fi folosita in rezolvarea cerintelor care 
+       urmeaza. Calcularea Broadcast-ului este similara cu calcularea adresei 
+       de retea, doar ca BST_ADDR (broadcast address) se initializeaza cu 
+       255.255.255.255 si se face SAU pe biti pentru a obtine rezultatul 
+       dorit. Acesta este afisat dupa terminarea calculului pe fiecare octet.
+       
+     Task 4
+       Pentru a putea determina daca IP_2 se afla in reteaua lui IP_1/mask,
+       trebuie calculata adresa de retea pentru IP_2 pe masca IP-ului 1; 
+       fiind folosita functia Compute_Network_Address(). In acest task 
+       este folosita o noua functie: Check_If_Same_Address(int[], int[]). 
+       Aceasta functie verifica daca adresele de retea introduse sunt aceleasi
+       (cu alte cuvinte, se compara vectorii element cu element si se verifica
+       daca sunt egale), si returneaza rezultatul. In cazul in care IP_2 se 
+       afla in reteaua care contine IP_1, atunci se afiseaza "da", altfel 
+       "nu". Acest fapt se retine in variabile same_NET_ADDR pentru 
+       rezolvarea Task-ului 6.
+       
+     Task 5
+       In acest task sunt afisate IP-urile in bazele cerute in cerinta prin
+       folosirea %X pentru afisarea in hexazecimal (cu majuscule) si %o 
+       pentru afisarea in baza 8, in printf().
+       
+     Task 6
+       Se citeste numarul de adrese de retele NUM, iar daca raspusul de la
+       task-ul 4 a fost afirmativ, atunci se afiseaza 0 si se citeste restul de
+       caractere fara a fi folosite undeva, pentru a citi seturile urmatoare
+       de date. In cazul in care raspunsul de la task-ul 4 este negativ,
+       atunci se citesc adresele de retea pe rand, impreuna cu masca si se 
+       verifia daca IP-ul 2 face parte din reteaua citita, prin functiile 
+       Compute_Network_Address() si Check_If_Same_Address(). Daca raspunsul e
+       afirmativ, atunci se afiseaza rangul la care s-a ajuns cu citirea 
+       retelelor, valoare incrementata cu 1 deoarece numaratoarea pleaca de la
+       0 din for. In cazul in care se parcurge tot sirul si nu s-a gasit nicio 
+       valoare, implicit nu se va adauga niciun numar.
+     
+     Task 7
+       Pentru rezolvarea acestui task, au fost definite mai multe functii. 
+       Functia Binary_Conversion(int) converteste in mod recursiv in cod 
+       binar fiecare octet din IP, valoare ce este apoi afisata pe ecran,
+       prin intermediul functiei Display_Binary(int, int). Aceasta afiseaza
+       pe 'no_of_bits' biti numarul convertit in baza 2. Din cauza ca numerele
+       returnate de functia Binary_Conversion sunt de tip intreg, ele nu vor
+       incepe niciodata cu cifra 0. Deci aceasta 'corectie' se va face la 
+       printare pe ecran prin adaugare de 0-uri pentru a completa octetul.
+       Functia Display_Binary_IP(int[]) afiseaza fiecare octet in cod binar,
+       precedat de caracterul '.' sau ' ' pentru ultimul octet.
+       
+     Task 8
+       Analog task-ului anterior, se converteste fiecare grup din IP in baza
+       32 si este afisata prin functia Display_32_IP(int[]), ce primeste ca 
+       argumet un vector IP. Deoarece baza 32 poate fi scrisa ca 2^5, atunci
+       se pot forma grupe de cate 5 biti, care sa fie convertite in baza 32, 
+       ulterior alipindu-se si formand numarul dorit. Cum 8 poate fi scri ca
+       5 + 3, restul de 2 biti sunt intotdeauna 0. Asa ca se iau primii 5 
+       biti de la dreapta la stanga (prin SI cu 00011111) si daca numarul 
+       obtinut este mai mare dacat 9 atunci se converteste in litera de tip
+       caracter prin adunarea cu 55 ("A" in ASCII (65) minus 10), iar daca e
+       cifra, atunci se adauga 48 ("0" in ASCII). Apoi se deplaseaza numarul
+       cu 5 biti si rezultatul obtinut se converteste in caracter sau ramane
+       0 daca aceasta valoare este 0 in binar. In final se alipesc cele 2 
+       groupe, iar daca grupa din stanga este nula, atunci nu se mai afiseaza.
+       
+OBSERVATII
+  La task-ul 6 a fost folosita functia Compute_Network_Address si pentru NUM_IP
+  pentru a evita orice greseala de calculare adresa de retea si pentru a face
+  verificarea cu retele valide.
+  Fiecare rand are cel mult 80 caractere, pentru a putea fi mai usor de
+  vizualizat in putty, de exemplu. De aceea argumentele unor functii au fost
+  scrise pe mai multe randuri.
